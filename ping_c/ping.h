@@ -7,24 +7,25 @@
 #include <arpa/inet.h>
 
 #define BUFFER_SIZE 64
-#define TIMEOUT 10000 // 10 שניות
+#define TIMEOUT 10000 // Timeout in milliseconds (10 seconds)
 
 typedef struct {
-    char *a;  // כתובת ה-IP של היעד
-    int t;    // סוג התקשורת (IPv4/IPv6)
-    int c;    // מספר הפינגים
-    int f;    // flood (ללא עיכוב)
+    char *a;  // Target IP address
+    int t;    // Communication type (IPv4/IPv6)
+    int c;    // Number of pings
+    int f;    // Flood mode (no delay between pings)
 } PingFlags;
 
-// חישוב ה-checksum
+// Calculate the checksum for the ICMP header
 unsigned short int calculate_checksum(void *data, unsigned int bytes);
 
-// ניתוח דגלים
-PingFlags manFlags(int argc,char *argv[]);
+// Parse command-line flags and options
+PingFlags manFlags(int argc, char *argv[]);
 
-// שליחת פינג
+// Send ping requests based on the type (IPv4/IPv6)
 void typePing(PingFlags opt);
 
+// Signal handler for SIGINT
 void handle_sigint(int sig);
 
 #endif

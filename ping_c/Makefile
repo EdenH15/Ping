@@ -1,70 +1,40 @@
-
-# Use the gcc compiler.
 CC = gcc
-
-# Flags for the compiler. Can also use -g for debugging.
-CFLAGS = -Wall -Wextra -Werror -std=c99 -pedantic
-
-# Command to remove files.
+CFLAGS = -Wall -Wextra -std=c99 -pedantic
 RM = rm -f
 
-# Header files.
-HEADERS = ping.h
+EXE = ping
+IP1 = 1.1.1.1 #Default ip for IPv4
+IP2 = 2001:4860:4860::8888  #Default ip for IPv6
 
-# Executable files.
-EXECS = ping
+.PHONY: all clean runp runsp runp6 runsp6
 
-# IP address to ping.
-IP = 1.1.1.1
+# Default target
+all: $(EXE)
 
-# Phony targets - targets that are not files but commands to be executed by make.
-.PHONY: all default clean runp runsp
+# Compile the ping program
+$(EXE): ping.o
+	$(CC) $(CFLAGS) -o $(EXE) ping.o
 
-# Default target - compile everything and create the executables and libraries.
-all: $(EXECS)
+# Compile the object file
+ping.o: ping.c ping.h
+	$(CC) $(CFLAGS) -c ping.c
 
-# Alias for the default target.
-default: all
+# Run ping program for IPv4
+runp4: $(EXE)
+	sudo ./ping -a $(IP1) -t 4
 
+# Run ping program for IPv6
+runp6: $(EXE)
+	sudo ./ping -a $(IP2) -t 6
 
-############
-# Programs #
-############
+# Run ping program with strace for IPv4
+runsp4: $(EXE)
+	sudo strace ./ping -a $(IP1) -t 4
 
-# Compile the ping program.
-$(EXECS): $(EXECS).o
-	$(CC) $(CFLAGS) -o $@ $^
+# Run ping program with strace for IPv6
+runsp6: $(EXE)
+	sudo strace ./ping -a $(IP2) -t 6
 
-
-################
-# Run programs #
-################
-
-# Run ping program in sudo mode.
-runp: $(EXECS)
-	sudo ./$< $(IP)
-
-################
-# System Trace #
-################
-
-# Run the ping program with system trace (sudo mode).
-runsp: $(EXECS)
-	sudo strace ./$< $(IP)
-
-################
-# Object files #
-################
-
-# Compile all the C files into object files.
-%.o: %.c
-	$(CC) $(CFLAGS) -c $< -o $@
-
-
-#################
-# Cleanup files #
-#################
-
-# Remove all the object files, shared libraries and executables.
+# Clean up generated files
 clean:
-	$(RM) *.o *.so $(EXECS)
+	$(RM) *.o $(EXE)
